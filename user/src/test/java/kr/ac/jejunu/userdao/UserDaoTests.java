@@ -1,7 +1,10 @@
 package kr.ac.jejunu.userdao;
 
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.SQLException;
 
@@ -10,14 +13,21 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 
 public class UserDaoTests {
+    private static UserDao userDao;
+
     String name = "hulk";
     String password = "1234";
+
+    @BeforeAll
+    public static void setup(){
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DaoFactory.class);
+        userDao = applicationContext.getBean("userDao", UserDao.class);
+    }
+
     @Test
     public void testGet() throws SQLException, ClassNotFoundException {
         Integer id = 1;
 
-        DaoFactory daoFactory = new DaoFactory();
-        UserDao userDao = daoFactory.getUserDao();
         User user = userDao.get(id);
         assertThat(user.getId(), is(id));
         assertThat(user.getName(), is(name));
@@ -29,8 +39,6 @@ public class UserDaoTests {
         user.setName(name);
         user.setPassword(password);
 
-        DaoFactory daoFactory = new DaoFactory();
-        UserDao userDao = daoFactory.getUserDao();
         userDao.insert(user);
         assertThat(user.getId(), greaterThan(0));
 
@@ -38,30 +46,5 @@ public class UserDaoTests {
         assertThat(insertedUser.getName(), is(name));
         assertThat(insertedUser.getPassword(), is(password));
     }
-//    @Test
-//    public void HallatestGet() throws SQLException, ClassNotFoundException {
-//        Integer id = 1;
-//
-//        ConnectionMaker connectionMaker = new HallaConnectionMaker();
-//        UserDao userDao = new UserDao(connectionMaker);
-//        User user = userDao.get(id);
-//        assertThat(user.getId(), is(id));
-//        assertThat(user.getName(), is(name));
-//        assertThat(user.getPassword(), is(password));
-//    }
-//    @Test
-//    public void Hallainsert() throws SQLException, ClassNotFoundException {
-//        User user = new User();
-//        user.setName(name);
-//        user.setPassword(password);
-//
-//        ConnectionMaker connectionMaker = new HallaConnectionMaker();
-//        UserDao userDao = new UserDao(connectionMaker);
-//        userDao.insert(user);
-//        assertThat(user.getId(), greaterThan(0));
-//
-//        User insertedUser = userDao.get(user.getId());
-//        assertThat(insertedUser.getName(), is(name));
-//        assertThat(insertedUser.getPassword(), is(password));
-//    }
+
 }
